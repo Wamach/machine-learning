@@ -380,3 +380,50 @@ else:
 
 # En total se generaron 25 graficas
 # De los cuales 10 son de pastel, 5 de barras, 5 de bigotes, 5 de histogramas
+
+
+# Informacion rectoria por año - Sueldo Neto
+df_rectoria_sum = pd.Series({
+    '2019': df_2019[df_2019["dependencia"] == "RECTORIA"]["Sueldo Neto"].sum(),
+    '2020': df_2020[df_2020["dependencia"] == "RECTORIA"]["Sueldo Neto"].sum(),
+    '2021': df_2021[df_2021["dependencia"] == "RECTORIA"]["Sueldo Neto"].sum(),
+    '2022': df_2022[df_2022["dependencia"] == "RECTORIA"]["Sueldo Neto"].sum(),
+    '2023': df_2023[df_2023["dependencia"] == "RECTORIA"]["Sueldo Neto"].sum()
+})
+
+df_rectoria_sum.plot(kind='bar', figsize=(12, 8), color='skyblue', edgecolor='black')
+
+plt.title('Evolución de Sueldos Netos de la Dependencia RECTORIA')
+plt.xlabel('Año')
+plt.ylabel('Sueldo Neto (Pesos)')
+plt.xticks(rotation=0)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+# Mostrar el gráfico
+plt.tight_layout()
+plt.savefig("evolucion_sueldos_netos_rectoria.png")
+plt.show()
+
+# En una grafica muestrame la cantidad de empleados en la dependencia == RECTORIA, cada columna un año
+# Crear el gráfico de barras
+df_rectoria_count = pd.Series({
+    '2019': df_2019[df_2019["dependencia"] == "RECTORIA"]["Nombre"].count(),
+    '2020': df_2020[df_2020["dependencia"] == "RECTORIA"]["Nombre"].count(),
+    '2021': df_2021[df_2021["dependencia"] == "RECTORIA"]["Nombre"].count(),
+    '2022': df_2022[df_2022["dependencia"] == "RECTORIA"]["Nombre"].count(),
+    '2023': df_2023[df_2023["dependencia"] == "RECTORIA"]["Nombre"].count()
+})
+
+df_rectoria_count.plot(kind='bar', figsize=(12, 8), color='skyblue', edgecolor='black')
+
+# Mejorar el aspecto del gráfico
+plt.title('Cantidad de Empleados en la Dependencia RECTORIA')
+plt.xlabel('Año')
+plt.ylabel('Número de Empleados')
+plt.xticks(rotation=0)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+# Mostrar el gráfico
+plt.tight_layout()
+plt.savefig("evolucion_empleados_rectoria.png")
+plt.show()
