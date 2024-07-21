@@ -8,6 +8,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Cargar el dataset en un DataFrame de Pandas
 df = pd.read_excel('ENB2012_DATA.xlsx')
@@ -47,12 +48,13 @@ modelos = {
 resultados = {}
 metricas = {}
 for nombre, modelo in modelos.items():
-    modelo.fit(x_train, y_train)
-    y_pred = modelo.predict(x_test)
-    r2 = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    modelo.fit(x_train, y_train)  # Se entrena modelo
+    y_pred = modelo.predict(x_test)  # Se evalua el modelo
+    r2 = r2_score(y_test, y_pred)  # Se calcula el R2
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))  # Se calcula el RMSE
     resultados[nombre] = {'R2': r2, 'RMSE': rmse}
-    metricas[nombre] = cross_val_score(modelo, x, y, cv=5, scoring='r2')
+    metricas[nombre] = cross_val_score(modelo, x, y, cv=10, scoring='r2')
+    # Se aplica cross validation con un criterio de r2
 
 # Imprimir resultados
 for nombre, scores in resultados.items():
@@ -68,3 +70,13 @@ y_pred = modelos[mejor_modelo].predict(x_test)
 print('Valor real\tValor predicho')
 for real, pred in zip(y_test, y_pred):
     print(f'{real:.2f}\t{pred:.2f}')
+
+# Grafica de los valores reales vs los valores predichos
+plt.scatter(y_test, y_pred)
+plt.scatter(y_test, y_pred, color='blue', alpha=0.7, label='Predicciones')
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2, label='Línea de igualdad')
+plt.scatter(y_test, y_test, color='red', alpha=0.5, label='Valores Reales')
+plt.xlabel('Valor Real')
+plt.ylabel('Valor Predicho')
+plt.title('Valores Reales vs Valores Predichos')
+plt.show()
