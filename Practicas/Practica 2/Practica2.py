@@ -18,7 +18,7 @@ y = df['Y2']
 
 # En este caso Y1 y Y2, son las variables determinantes, así que se eliminan.
 x = df.drop(columns=['Y1', 'Y2', 'X8'])  # Se elimina la columna X8 por ser categorica,
-# Y1 y Y2 por ser las variables determinantes
+# Y1 y Y2 por ser las variables objetivo
 
 # Dividir el dataset en conjunto de entrenamiento y conjunto de prueba
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
@@ -26,8 +26,8 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_
 # Se generan los métodos de regresión a utilizarse (Lineal, Polinomial, knn y árbol de decisión)
 modelos = {
     'Regresión Lineal': Pipeline([
-        ('estandarizador', StandardScaler()),
-        ('regresor', LinearRegression())
+        ('estandarizador', StandardScaler()), # Se estandarizan los datos
+        ('regresor', LinearRegression()) # Se aplica la regresión lineal
     ]),
     'Regresión Polinomial': Pipeline([
         ('estandarizador', StandardScaler()),
@@ -56,6 +56,10 @@ for nombre, modelo in modelos.items():
     metricas[nombre] = cross_val_score(modelo, x, y, cv=10, scoring='r2')
     # Se aplica cross validation con un criterio de r2
 
+# Regularizacion o Normalizacion usando Ridge o Lasso
+# from sklearn.linear_model import Ridge, Lasso
+
+
 # Imprimir resultados
 for nombre, scores in resultados.items():
     print(f'{nombre} - R2: {scores["R2"]:.4f}, RMSE: {scores["RMSE"]:.4f}')
@@ -65,18 +69,18 @@ for nombre, scores in resultados.items():
 mejor_modelo = max(resultados, key=lambda k: resultados[k]['R2'])
 print(f'\nMejor modelo basado en R2: {mejor_modelo}')
 
-# Realizar predicciones con el mejor modelo
-y_pred = modelos[mejor_modelo].predict(x_test)
-print('Valor real\tValor predicho')
-for real, pred in zip(y_test, y_pred):
-    print(f'{real:.2f}\t{pred:.2f}')
+
 
 # Grafica de los valores reales vs los valores predichos
 plt.scatter(y_test, y_pred)
-plt.scatter(y_test, y_pred, color='blue', alpha=0.7, label='Predicciones')
-plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2, label='Línea de igualdad')
-plt.scatter(y_test, y_test, color='red', alpha=0.5, label='Valores Reales')
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=3)
 plt.xlabel('Valor Real')
 plt.ylabel('Valor Predicho')
 plt.title('Valores Reales vs Valores Predichos')
 plt.show()
+
+# Realizar predicciones con el mejor modelo -- Complemento para visualizarlo mejor
+y_pred = modelos[mejor_modelo].predict(x_test)
+print('Valor real\tValor predicho')
+for real, pred in zip(y_test, y_pred):
+    print(f'{real:.2f}\t{pred:.2f}')
