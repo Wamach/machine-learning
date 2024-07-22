@@ -3,7 +3,6 @@ import os
 os.environ['OMP_NUM_THREADS'] = '3'  # Establece el número de threads a 3
 
 import pandas as pd
-from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.preprocessing import StandardScaler
@@ -15,8 +14,8 @@ import matplotlib.pyplot as plt
 
 # Cargar y preparar el conjunto de datos
 df = pd.read_excel('ENB2012_data.xlsx')
-y = df['X8']
-X = df.drop(columns=['X8'])
+y = df['X6']
+X = df.drop(columns=['X6','Y1','Y2'])
 
 # Escalar los datos
 scaler = StandardScaler()

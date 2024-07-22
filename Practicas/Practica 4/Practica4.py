@@ -1,4 +1,4 @@
-# Librerias
+# Librerías
 import os
 
 # Establece el número de threads a 3
@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, silhouette_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 
 # Cargar y preparar el conjunto de datos
 df = pd.read_excel('ENB2012_data.xlsx')
-y = df['X8']
-X = df.drop(columns=['X8'])
+y = df['X6']
+X = df.drop(columns=['X6', 'Y1', 'Y2'])
 
 # Escalar los datos
 scaler = StandardScaler()
@@ -59,21 +59,7 @@ print("Accuracy:", accuracy_score(y_test, y_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 print("Classification Report:\n", classification_report(y_test, y_pred, zero_division=0))
 
-# Mostrar graficamente
-plt.figure(figsize=(10, 6))
-plt.bar(results.keys(), [result.mean() for result in results.values()],
-        yerr=[result.std() for result in results.values()], capsize=5)
-plt.ylabel('Accuracy')
-plt.title('Grafico de Barras. Cross Validation Accuracy de los Modelos de Clasificación')
-plt.show()
-
 # ---------------- Tarea 4 ----------------
-# Crear modelo de agrupamiento con K-means
-kmeans = KMeans(n_clusters=2, random_state=0)
-kmeans.fit(X_train)
-y_pred_kmeans = kmeans.predict(X_test)
-
-# Usar elbow method para encontrar el valor de k
 inertia = []
 for k in range(1, 11):
     kmeans = KMeans(n_clusters=k, random_state=0)
@@ -87,8 +73,10 @@ plt.ylabel('Suma de las Distancias Cuadradas')
 plt.title('Elbow Method - Metodo del Codo')
 plt.show()
 
+# Determinar el número óptimo de clusters basado en el método del codo
+optimal_k = 2  # Valor optimo para la grafica de codo
+
 # Reajustar el modelo K-means con el número óptimo de clusters
-optimal_k = 2  # Basado en el resultado del método del codo
 kmeans = KMeans(n_clusters=optimal_k, random_state=0)
 kmeans.fit(X_train)
 y_pred_kmeans = kmeans.predict(X_test)
@@ -98,19 +86,25 @@ tsne = TSNE(n_components=2, perplexity=30, n_iter=300, random_state=0)
 X_test_tsne = tsne.fit_transform(X_test)
 
 plt.figure(figsize=(10, 6))
-plt.scatter(X_test_tsne[y_pred_kmeans == 0, 0], X_test_tsne[y_pred_kmeans == 0, 1], color='red', label='Cluster 0')
-plt.scatter(X_test_tsne[y_pred_kmeans == 1, 0], X_test_tsne[y_pred_kmeans == 1, 1], color='blue', label='Cluster 1')
-plt.title('K-means Clustering with t-SNE')
+plt.scatter(X_test_tsne[y_pred_kmeans == 0, 0], X_test_tsne[y_pred_kmeans == 0, 1], color='red', label='Cluster 1')
+plt.scatter(X_test_tsne[y_pred_kmeans == 1, 0], X_test_tsne[y_pred_kmeans == 1, 1], color='blue', label='Cluster 2')
+plt.title('K-means Clustering con t-SNE')
 plt.legend()
 plt.show()
 
-# Comparacion
-print("Modelo de Clasificación")
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-print("Classification Report:\n", classification_report(y_test, y_pred, zero_division=0))
+silhouette_avg = silhouette_score(X_test, y_pred_kmeans) # Se utiliza la silueta para evaluar el agrupamiento
+print("Silhouette coefficient:", silhouette_avg)
 
-print("\nModelo de Agrupamiento")
-print("Accuracy:", accuracy_score(y_test, y_pred_kmeans))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_kmeans))
-print("Classification Report:\n", classification_report(y_test, y_pred_kmeans, zero_division=0))
+if accuracy_score(y_test, y_pred) > 0.8:
+    print("El modelo de clasificacion sobrepasa el umbral")
+elif silhouette_avg > 0.4:
+    print("El modelo de agrupamiento sobrepasa el umbral")
+
+# Definir umbrales
+accuracy_threshold = 0.8
+silhouette_threshold = 0.4
+# Evaluar el modelo de agrupamiento
+if silhouette_avg > silhouette_threshold:
+    print("El modelo de agrupamiento es mejor")
+else:
+    print("El modelo de clasificacion es mejor")
